@@ -9,3 +9,7 @@
 
 controllers:
     resource: routing.controllers
+
+app_hello:
+    path: /hello
+    controller: App\Controller\HelloController::hello
