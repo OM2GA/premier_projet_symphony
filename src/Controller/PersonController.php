@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Address;
+use App\Entity\Hobby;
 use App\Entity\Person;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,10 @@ class PersonController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
+        if (!$data) {
+            return new JsonResponse(['error' => 'Données JSON invalides'], Response::HTTP_BAD_REQUEST);
+        }
+
         $person = new Person();
         $person->setFirstname($data['firstname']);
         $person->setLastname($data['lastname']);
@@ -28,13 +33,24 @@ class PersonController extends AbstractController
         $address->setStreet($data['address']['street']);
         $address->setCity($data['address']['city']);
         $address->setZipCode($data['address']['zipCode']);
-
         $person->setAddress($address);
+
+        if (isset($data['hobby'])) {
+            $hobby = $entityManager->getRepository(Hobby::class)->findOneBy(['designation' => $data['hobby']]);
+
+            if (!$hobby) {
+                $hobby = new Hobby();
+                $hobby->setDesignation($data['hobby']);
+                $entityManager->persist($hobby);
+            }
+            
+            $person->setHobby($hobby);
+        }
 
         $entityManager->persist($person);
         $entityManager->flush();
 
-        return new JsonResponse(['message' => 'Personne et adresse créées avec succès'], Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'Personne, adresse et hobby enregistrés avec succès'], Response::HTTP_CREATED);
     }
 
     #[Route('/person/{id}', name: 'app_person_get', methods: ['GET'])]
@@ -50,7 +66,17 @@ class PersonController extends AbstractController
                 'street' => $person->getAddress()->getStreet(),
                 'city' => $person->getAddress()->getCity(),
                 'zipCode' => $person->getAddress()->getZipCode(),
-            ]
+            ],
+            'hobby' => $person->getHobby() ? $person->getHobby()->getDesignation() : null
         ]);
+    }
+
+    #[Route('/person/{id}', name: 'app_person_delete', methods: ['DELETE'])]
+    public function delete(Person $person, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $entityManager->remove($person);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Personne supprimée avec succès'], Response::HTTP_OK);
     }
 }

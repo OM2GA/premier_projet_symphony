@@ -47,6 +47,9 @@ class Person
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $address = null;
 
+    #[ORM\ManyToOne(inversedBy: 'people')]
+    private ?Hobby $hobby = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -108,6 +111,18 @@ class Person
     public function setAddress(Address $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getHobby(): ?Hobby
+    {
+        return $this->hobby;
+    }
+
+    public function setHobby(?Hobby $hobby): static
+    {
+        $this->hobby = $hobby;
 
         return $this;
     }
