@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class PersonController extends AbstractController
+class HelloController extends AbstractController
 {
     #[Route('/person/create', name: 'app_person_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager): Response
