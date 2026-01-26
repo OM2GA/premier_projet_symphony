@@ -35,7 +35,6 @@ class PersonController extends AbstractController
         ]);
     }
 
-    // --- ÉTAPE 2.6 : SUPPRIMER UNE PERSONNE ---
     #[Route('/person/{id}', name: 'app_person_delete', methods: ['DELETE'])]
     public function delete(Person $person, EntityManagerInterface $entityManager): JsonResponse
     {
